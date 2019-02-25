@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.gateway.helper.infra.mapper.PermissionPlusMapper">
+
+    <select id="selectSourceIdsByUserIdAndPermissionEffective" resultType="java.lang.Long">
+        SELECT imr.source_id
+        FROM iam_member_role imr
+        JOIN iam_role ir ON imr.role_id = ir.id
+        JOIN iam_role_permission irp ON irp.role_id = ir.id
+        <!-- 限制权限集 -->
+        JOIN iam_menu_permission imp ON imp.menu_id = irp.permission_id
+        JOIN iam_menu im ON (im.id = imp.menu_id and im.type = 'ps')
+        WHERE imr.source_type = #{sourceType} AND imr.member_id = #{memberId} AND imr.member_type = #{memberType} AND imp.permission_code = #{permissionCode}
+        <!-- 角色权限创建及继承标识判断以及当前登录角色判断 -->
+        AND (irp.h_create_flag = 'Y' OR irp.h_inherit_flag = 'Y')
+    </select>
+</mapper>
